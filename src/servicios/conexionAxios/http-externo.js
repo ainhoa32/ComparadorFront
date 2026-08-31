@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const httpExterno = axios.create({
-  baseURL: 'https://comparador-back-e86e3c459d29.herokuapp.com/', 
+  baseURL: 'http://localhost:8080/', 
   headers: {
     'Content-Type': 'application/json',
   },

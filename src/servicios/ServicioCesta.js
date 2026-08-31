@@ -1,29 +1,46 @@
-import http from "./conexionAxios/http-axios";
+// La cesta se guarda en localStorage. No se usa ninguna base de datos ni json-server.
+// La API imita a la de un servicio REST (devuelve Promesas con la forma { data })
+// para que los llamadores existentes sigan funcionando sin cambios.
 
-// La cesta se guarda en un archivo JSON (json-server), no en una base de datos ni
-// asociada a un usuario. Por eso no se usan cabeceras de autenticación ni parámetros
-// de usuario.
+const CLAVE = "cesta";
+
+const leerCesta = () => {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE)) || [];
+  } catch {
+    return [];
+  }
+};
+
+const guardarCesta = (cesta) => {
+  localStorage.setItem(CLAVE, JSON.stringify(cesta));
+};
+
+const generarId = () =>
+  Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
 
 class ServicioCesta {
   getProdsCesta() {
-    return http.get(`/productosCesta`);
+    return Promise.resolve({ data: leerCesta() });
   }
 
   anadirProdCesta(producto) {
-    return http.post(`/productosCesta`, producto);
+    const cesta = leerCesta();
+    const nuevo = { ...producto, id: generarId(), enLaCesta: true };
+    cesta.push(nuevo);
+    guardarCesta(cesta);
+    return Promise.resolve({ data: nuevo });
   }
 
   eliminarProdCesta(id) {
-    return http.delete(`/productosCesta/${id}`);
+    const cesta = leerCesta().filter((producto) => producto.id !== id);
+    guardarCesta(cesta);
+    return Promise.resolve({ data: {} });
   }
 
-  async eliminarCesta() {
-    const respuesta = await http.get(`/productosCesta`);
-    const productos = respuesta.data || [];
-    await Promise.all(
-      productos.map((producto) => this.eliminarProdCesta(producto.id))
-    );
-    return respuesta;
+  eliminarCesta() {
+    guardarCesta([]);
+    return Promise.resolve({ data: [] });
   }
 }
 
