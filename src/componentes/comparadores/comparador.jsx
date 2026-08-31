@@ -1,4 +1,4 @@
-import {  useState } from 'react';
+import { useState, useEffect } from 'react';
 import ServicioProductos from '../../servicios/ServicioProductos';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "../../estilos/comparador.css"
@@ -26,7 +26,9 @@ const Comparador = () => {
     realizarBusqueda()
   };
 
-  scrollArriba()
+  useEffect(() => {
+    scrollArriba()
+  }, [])
 
   const realizarBusqueda = (nombreProducto) => {
     const productoABuscar = nombreProducto || producto

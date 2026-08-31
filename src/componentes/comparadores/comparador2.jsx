@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ServicioProductos from '../../servicios/ServicioProductos';
 import Encabezado from '../comunes/encabezados';
 import ResultadoBusqueda from './resultadoBusqueda';
@@ -24,7 +24,9 @@ const Comparador2 = () => {
     realizarBusqueda()
   };
 
-  scrollArriba()
+  useEffect(() => {
+    scrollArriba()
+  }, [])
 
   const realizarBusqueda = (nombreProducto) => {
     const productoABuscar = nombreProducto || producto
