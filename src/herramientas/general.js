@@ -1,5 +1,7 @@
-import { useEffect } from "react";
-import ServicioBusquedasFavoritas from "../servicios/ServicioBusquedasFavoritas";
+// Nota: La cesta se guarda en un archivo JSON (json-server) y ya no depende de una base
+// de datos ni de un usuario. Las funciones de favoritos y de listas predeterminadas
+// siguen sin utilizarse, por lo que se conservan comentadas.
+
 import ServicioCesta from "../servicios/ServicioCesta";
 
 export const filtrarPorSupermercado = (
@@ -17,14 +19,13 @@ export const filtrarPorSupermercado = (
 export const comprobarSiEstanEnLaCesta = (
   productosTotal,
   setResultados,
-  setError,
-  user
+  setError
 ) => {
-  ServicioCesta.getProdsCesta(user)
+  ServicioCesta.getProdsCesta()
     .then((respuesta) => {
-      const productosEnCesta = respuesta.data?.productos || [];
+      const productosEnCesta = respuesta.data || [];
       const productosActualizados = productosTotal.map((prodResultado) => {
-        const enCesta = productosEnCesta.some(
+        const enCesta = productosEnCesta.find(
           (prodCesta) =>
             prodCesta.nombre === prodResultado.nombre &&
             prodCesta.supermercado === prodResultado.supermercado
@@ -32,7 +33,8 @@ export const comprobarSiEstanEnLaCesta = (
 
         return {
           ...prodResultado,
-          enLaCesta: enCesta,
+          enLaCesta: Boolean(enCesta),
+          idCesta: enCesta ? enCesta.id : undefined,
         };
       });
 
@@ -41,30 +43,6 @@ export const comprobarSiEstanEnLaCesta = (
     .catch(() => {
       setError("Ha ocurrido un error con la conexión");
     });
-};
-
-export const comprobarSiProdListaEstanEnLaCesta = async (productos, user) => {
-  try {
-    const respuesta = await ServicioCesta.getProdsCesta(user);
-    const productosEnCesta = respuesta.data?.productos || [];
-    return productos.map(prod => ({
-      ...prod,
-      enLaCesta: productosEnCesta.some(p =>
-        p.nombre === prod.producto.nombre &&
-        p.supermercado === prod.producto.supermercado
-      )
-    }));
-  } catch (error) {
-    return productos;
-  }
-};
-
-export const cambiarImgFavoritos = (imagen, setImagen) => {
-  setImagen(
-    imagen === "/imagenes/fav1.png"
-      ? "/imagenes/fav2.png"
-      : "/imagenes/fav1.png"
-  );
 };
 
 export const dividirResultadosPorSupermercados = (
@@ -91,77 +69,6 @@ export const dividirResultadosPorSupermercados = (
 export const obtenerIdProducto = (producto) =>
   `producto-cesta-${producto.precio}-${producto.nombre}`;
 
-// src/herramientas/handlersBusqueda.js
-
-export const handleInputChange = async (
-  e,
-  setProducto,
-  setFavoritoGuardado,
-  favoritoGuardado,
-  cambiarImgFavoritos,
-  imagen,
-  setImagen,
-  user
-) => {
-  setProducto(e.target.value);
-
-  if (favoritoGuardado) {
-    cambiarImgFavoritos(imagen, setImagen);
-  }
-
-  const prod = {
-    usuario: user,
-    nombreBusqueda: e.target.value
-  }
-
-  const esFav = await comprobarEsFav(prod)
-
-  if (esFav) {
-    setFavoritoGuardado(true)
-    cambiarImgFavoritos(imagen, setImagen);
-  } else {
-    setFavoritoGuardado(false)
-  }
-
-};
-
-const comprobarEsFav = async (prod) => {
-  try {
-    const respuesta = await ServicioBusquedasFavoritas.isBusquedaFav(prod)
-    return respuesta.data.esFavorito
-  } catch (error) {
-    return false
-  }
-
-}
-
-export const manejarFavoritos = (
-  producto,
-  setError,
-  favoritoGuardado,
-  user,
-  eliminarBusquedaFav,
-  anadirBusquedaFav,
-  setCambioBusquedasFavoritas
-) => {
-  if (!producto.trim()) {
-    setError("Introduzca el nombre de un producto.");
-  } else {
-    const busquedaFav = {
-      usuario: user,
-      nombreBusqueda: producto,
-    };
-
-    if (favoritoGuardado) {
-      eliminarBusquedaFav(busquedaFav, setCambioBusquedasFavoritas);
-    } else {
-      anadirBusquedaFav(busquedaFav, setCambioBusquedasFavoritas);
-    }
-  }
-};
-
-//Solo queremos saber si hay alguna lista con mínimo un elemento
-//Dependiendo de ellos el estado de búsqueda va a ser diferente
 export const listaConResultados = (lista) => {
   return Object.values(lista).some((arr) => arr.length > 0) || [];
 };
@@ -169,3 +76,16 @@ export const listaConResultados = (lista) => {
 export const scrollArriba = () => {
   window.scrollTo({ top: 0, behavior: 'auto' });
 }
+
+// ----- Funcionalidades que siguen sin utilizarse (favoritos y listas predeterminadas) -----
+// import ServicioBusquedasFavoritas from "../servicios/ServicioBusquedasFavoritas";
+
+// export const comprobarSiProdListaEstanEnLaCesta = async (productos, user) => { ... }
+
+// export const cambiarImgFavoritos = (imagen, setImagen) => { ... }
+
+// export const handleInputChange = async (...) => { ... }
+
+// const comprobarEsFav = async (prod) => { ... }
+
+// export const manejarFavoritos = (...) => { ... }

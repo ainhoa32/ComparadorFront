@@ -3,11 +3,8 @@ import ResultadosCesta from "./resultadosCesta";
 import ServicioCesta from "../../servicios/ServicioCesta";
 import { dividirResultadosPorSupermercados, listaConResultados } from "../../herramientas/general";
 import EstadoBusqueda from "../comunes/estadoBusqueda";
-import { useAuth } from "../../Login/AuthProvider";
 
 const Cesta = () => {
-
-    const { user } = useAuth()
 
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -20,8 +17,8 @@ const Cesta = () => {
 
     useEffect(() => {
         setLoading(true)
-        ServicioCesta.getProdsCesta(user).then(respuesta => {
-            let prods = respuesta.data.productos
+        ServicioCesta.getProdsCesta().then(respuesta => {
+            let prods = respuesta.data
             setLoading(false);
             if (prods && prods.length > 0) {
                 dividirResultadosPorSupermercados(prods, setProductosPorSupermercado)
@@ -56,4 +53,4 @@ const Cesta = () => {
     )
 }
 
-export default Cesta;
+export default Cesta

@@ -4,7 +4,6 @@ import ModalEliminarLista from "../modals/modalEliminarLista";
 import Modal from "../modals/modal";
 import "../../estilos/transicion.css"
 import { obtenerIdProducto } from "../../herramientas/general";
-import { useAuth } from "../../Login/AuthProvider";
 import ServicioCesta from "../../servicios/ServicioCesta";
 import ProductoLista from "../comunes/productoLista";
 
@@ -18,17 +17,11 @@ const ResultadosCesta = ({ productosPorSupermercado, setProductosPorSupermercado
         setIsModalOpen(false)
         setChildrenModal(null)
     }
-    const { user } = useAuth()
 
     const [eliminando, setEliminando] = useState(null);
 
     const eliminarProdCesta = (item) => {
-        const prodEliminado = {
-            usuario: user,
-            prod: item
-        }
-
-        ServicioCesta.eliminarProdCesta(prodEliminado).then(() => {
+        ServicioCesta.eliminarProdCesta(item.id).then(() => {
             setEliminando(obtenerIdProducto(item));
             closeModal();
             setTimeout(() => {
@@ -46,7 +39,7 @@ const ResultadosCesta = ({ productosPorSupermercado, setProductosPorSupermercado
     }
 
     const abrirModalEliminarLista = () => {
-        setChildrenModal(<ModalEliminarLista onClose={closeModal} setError={setError} setListas={setProductosPorSupermercado} listas={productosPorSupermercado} cesta={true} user={user}/>)
+        setChildrenModal(<ModalEliminarLista onClose={closeModal} setError={setError} setListas={setProductosPorSupermercado} cesta={true}/>)
         openModal()
     }
 
